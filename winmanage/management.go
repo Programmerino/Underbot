@@ -15,14 +15,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-// The height and width that the window should be resized to (this value usually keeps the processing at 60fps)
+// The height and width that the window should be resized to (these values usually keeps the processing at 60fps)
 const (
 	height = 480
 	width  = 640
 )
 
+// The title of the UndertaleWindow
+var title string
+
 // Get an instance of UndertaleWindow based on the window clicked
-func Get(x *xgbutil.XUtil) *UndertaleWindow {
+func Get(x *xgbutil.XUtil, name string) *UndertaleWindow {
+	title = name
 	winID := getWinID(x)
 	return getWinInfo(x, winID)
 }
@@ -58,9 +62,8 @@ func getWinInfo(x *xgbutil.XUtil, winID xproto.Window) *UndertaleWindow {
 	pid, err := ewmh.WmPidGet(x, winID)
 	if err != nil {
 		fmt.Println("Failed to get PID")
-		pid = executableNameToPid("Under")
+		pid = findUndertale()
 		fmt.Println("Got PID from process list")
-		//panic(errors.Wrap(err, "Failed to get PID from X"))
 	}
 
 	// Use the PID to create a os.Process instance for the ability to pause the game, etc.
@@ -93,16 +96,30 @@ func waitForMouseClick() {
 	panic("mleft was not 0")
 }
 
-func executableNameToPid(processName string) uint {
+// Indicators within a process name for an Undertale related process
+var undertaleProcessNames = []string{"runner", "under", "tale"}
+
+// Gets the PID of the Undertale process
+func findUndertale() uint {
+	for _, processName := range undertaleProcessNames {
+		pid, err := executableNameToPid(processName)
+		if err == nil {
+			return pid
+		}
+	}
+	panic("Could not find Undertale instance")
+}
+
+// Finds the PID based on the executable name of a process
+func executableNameToPid(processName string) (uint, error) {
 	processes, err := ps.Processes()
 	if err != nil {
 		panic(err)
 	}
 	for _, process := range processes {
-		if strings.Contains(process.Executable(), processName) {
-			return uint(process.Pid())
+		if strings.Contains(strings.ToLower(process.Executable()), strings.ToLower(processName)) && process.Executable() != title {
+			return uint(process.Pid()), nil
 		}
 	}
-	panic("Could not find the process")
-	return 0
+	return 0, errors.New("Could not find the process")
 }

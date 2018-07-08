@@ -46,15 +46,12 @@
   version = "~0.8.0"
 
 [[constraint]]
-  branch = "master"
+  #version = "0.13.1"
+   branch = "master"
   name = "gocv.io/x/gocv"
 
 [prune]
   go-tests = true
-
-[[constraint]]
-  name = "github.com/fogleman/gg"
-  version = "1.0.0"
 
 [[constraint]]
   branch = "master"

@@ -16,8 +16,10 @@ import (
 	"github.com/BurntSushi/xgb/xproto"
 )
 
+// Map containing the X keycodes for characters
 var keycodes map[string]byte
 
+// Initializes the keycodes map and fills it with characters that will be used
 func init() {
 	keycodes = make(map[string]byte)
 	keycodes["z"] = 52
@@ -67,6 +69,7 @@ func (window *UndertaleWindow) Resume() {
 	}
 }
 
+// ---------------NOT WORKING!---------------
 var cooldown = time.Millisecond * 200
 var cooldownActive = false
 
@@ -81,17 +84,23 @@ func (window *UndertaleWindow) Press(x *xgb.Conn, xu *xgbutil.XUtil, key string)
 	prepareXTest(x)
 	// 2 is key press
 	xtest.FakeInput(x, 2, keycodes["z"], uint32(xu.TimeGet()), window.WindowID, 0, 0, 0)
+	time.Sleep(time.Millisecond * 50)
 	// 3 is key release
 	xtest.FakeInput(x, 3, keycodes["z"], uint32(xu.TimeGet()), window.WindowID, 0, 0, 0)
 }
 
+// ---------------END---------------
+
+// Whether or not xtest has already been initialized
 var prepared = false
 
+// Initializes xtest if it hasn't already been initialized
 func prepareXTest(x *xgb.Conn) {
 	if !prepared {
 		err := xtest.Init(x)
 		if err != nil {
 			panic(err)
 		}
+		prepared = true
 	}
 }

@@ -145,7 +145,7 @@
   branch = "master"
   name = "gocv.io/x/gocv"
   packages = ["."]
-  revision = "09994446aec439b74e48f97f777026cc47a6fe14"
+  revision = "0d9b22a6450a7d81761a4b763f58fb99e962ab47"
 
 [[projects]]
   branch = "master"
@@ -196,13 +196,13 @@
     "unix",
     "windows"
   ]
-  revision = "7138fd3d9dc8335c567ca206f4333fb75eb05d56"
+  revision = "151529c776cdc58ddbe7963ba9af779f3577b419"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
-  revision = "75d2ffb453d53bed20f95f0d563ee000dc4c0c83"
+  revision = "16f8f9bb720111f0b7b5c750acc28768620bb0c7"
 
 [solve-meta]
   analyzer-name = "dep"

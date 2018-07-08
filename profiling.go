@@ -1,4 +1,4 @@
-package profiling
+package main
 
 import (
 	"flag"
@@ -15,14 +15,15 @@ var memprofile = flag.String("memprofile", "", "write memory profile to this fil
 
 // HandleProfiling is the introduction function for all profiling related functionality
 func HandleProfiling() {
+	fmt.Println("wtf")
 	flag.Parse()
 	if *cpuprofile != "" {
 		cpuProfile()
-		fmt.Println("Finished CPU profiling")
+		//fmt.Println("Finished CPU profiling")
 	}
 	if *memprofile != "" {
 		ramProfile()
-		fmt.Println("Finished memory profiling")
+		//fmt.Println("Finished memory profiling")
 	}
 }
 
@@ -36,18 +37,19 @@ func cpuProfile() {
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to start CPU profiling"))
 	}
-	defer pprof.StopCPUProfile()
 }
+
+var memFile *os.File
 
 // Handles situation if memory profiling is enabled
 func ramProfile() {
-	f, err := os.Create(*memprofile)
+	var err error
+	memFile, err = os.Create(*memprofile)
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to create specified memory profile file"))
 	}
-	err = pprof.WriteHeapProfile(f)
+	err = pprof.WriteHeapProfile(memFile)
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to start memory profiling"))
 	}
-	defer f.Close()
 }

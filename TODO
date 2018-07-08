@@ -1,0 +1,27 @@
+1. Make the Press() function work
+    - xdolib seems to be the way to go, unless xtest can be found to work
+2. Find or create pathfinding solution to get the heart to a coordinate in the AttackBox
+    - See Notes(2)
+3. Add actual AI to handle the objects on screen
+    1) start with the BattleMenuUpdate() function
+    2) implement the functions for the rest of the game states
+    3) The AI for the actual avoiding of the objects should be implemented as so:
+        1. Have a small radius that it avoids objects in at all costs. See Notes(3)
+        2. If no objects are in the radius, then use the pathfinding to go the location with the least objects near it
+
+
+Once the AI for the battles works well, then:
+1. Adapt pathfinding to work outside the battle
+    - New computer vision method may need to be found, as Frisk is not detected when another object is nearby or obscuring the image. See Notes(1)
+
+
+
+
+
+Notes:
+    1) A new computer vision method may need to be found for outside battles, as Frisk is not detected when another object is nearby or obscuring the image.
+    A hacky solution could be to adjust the threshold value intelligently until Frisk is found.
+
+    2) go-detour seems to be the most fleshed out solution, however the documentation is difficult. The only other solution is the A* algorithm, which can be implemented through the gopathfinding package.
+
+    3) It should find the location in the radius that is the farthest from the objects in the radius and go that direction.

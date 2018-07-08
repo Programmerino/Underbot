@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Connections to the X server
 var x *xgbutil.XUtil
 var xgbConn *xgb.Conn
 
@@ -29,16 +30,13 @@ func init() {
 
 // GetImage gets a screenshot of the window
 func GetImage(window *winmanage.UndertaleWindow) image.RGBA {
-	if xgbConn == nil {
-		panic("The xgbConn is a nil pointer!")
-	}
-	if window == nil {
-		panic("The window is a nil pointer!")
-	}
+	// Gets the image from the window
 	ximg, err := xproto.GetImage(xgbConn, xproto.ImageFormatZPixmap, xproto.Drawable(window.WindowID), int16(0), int16(0), uint16(window.Width), uint16(window.Height), 0xffffffff).Reply()
 	if err != nil {
 		panic(errors.Wrap(err, "Failed to get image"))
 	}
+
+	// Converts the xproto image to an image.RGBA instance
 	data := ximg.Data
 	for i := 0; i < len(data); i += 4 {
 		data[i], data[i+2], data[i+3] = data[i+2], data[i], 255

@@ -12,7 +12,7 @@ type process struct {
 	state   gamestate.GameState
 }
 
-// Creates new process
+// Creates new process with parameter checking
 func newProcess(Process *os.Process) process {
 	tempProcess := process{Process, gamestate.Playing}
 	tempProcess.check()
