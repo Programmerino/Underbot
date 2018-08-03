@@ -6,8 +6,9 @@ The bot that can play independently play Undertale (and some fangames) in it's e
 ### Linux (X11)
 1. If you don't already have ```dep``` installed, use this command to do so: ```curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh```
 2. Build OpenCV from the [GoCV project](https://github.com/hybridgroup/gocv) (OpenCV 3+ might work, but please try the GoCV version before reporting issues here)
-3.  Run ```dep ensure``` to get the needed packages.
-4.  Finally, use ```go build```
+3. Get this project with ```git clone https://gitlab.com/256/Underbot.git```
+4.  Run ```dep ensure``` to get the needed packages in the root directory
+5.  Finally, use ```go build``` and run the executable named ```Underbot```
 ### Linux (Wayland)
 Until Wayland provides a method to interact with other windows, as it is designed to limit interaction between windows, this is unlikely to ever be in the future of this project.
 ### Other platforms
