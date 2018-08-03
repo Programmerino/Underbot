@@ -2,17 +2,11 @@ package winmanage
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"time"
 
-	"github.com/BurntSushi/xgb/xproto"
-	"github.com/BurntSushi/xgbutil"
-	"github.com/BurntSushi/xgbutil/ewmh"
-	"github.com/BurntSushi/xgbutil/xwindow"
 	"github.com/go-vgo/robotgo"
-	"github.com/mitchellh/go-ps"
 	"github.com/pkg/errors"
+	"gitlab.com/256/Underbot/sys"
 )
 
 // The height and width that the window should be resized to (these values usually keeps the processing at 60fps)
@@ -21,105 +15,65 @@ const (
 	width  = 640
 )
 
-// The title of the UndertaleWindow
+// The title of the Window
 var title string
 
-// Get an instance of UndertaleWindow based on the window clicked
-func Get(x *xgbutil.XUtil, name string) *UndertaleWindow {
-	title = name
-	winID := getWinID(x)
-	return getWinInfo(x, winID)
+// The UndertaleWindow instance that will be worked upon
+var mainWindow sys.Window
+
+// GetMainWindow adds capability to get the main window from other packages
+func GetMainWindow() *sys.Window {
+	return &mainWindow
 }
 
-// Gets UndertaleWindow from window ID
-func getWinInfo(x *xgbutil.XUtil, winID xproto.Window) *UndertaleWindow {
-	//Get the title of the window for debugging
-	name, err := ewmh.WmNameGet(x, winID)
+// Get an instance of Window based on the window clicked
+func Get(serv sys.Server, name string) (sys.Window, error) {
+	title = name
+	win, err := getWinID(serv)
 	if err != nil {
-		name = "unknown window"
-		fmt.Println("Could not get the name of the window")
+		return nil, errors.Wrap(err, "failed to get the window")
+	}
+	err = modifyWindow(win)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to modify the window")
+	}
+	return win, nil
+}
+
+// Gets Window from window ID
+func modifyWindow(win sys.Window) error {
+	// Print the name of the window for debugging
+	name, err := win.Name()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the name")
 	}
 	fmt.Printf("You selected %s\n", name)
 
-	// Create xwindow instance from xproto window id
-	xwinWin := xwindow.New(x, winID)
-
-	// Attempt to resize the window for WM compatible DEs
-	err = xwinWin.WMResize(width, height)
+	// Resize the window to the wanted specifications
+	err = win.Resize(width, height)
 	if err != nil {
-		fmt.Println(errors.Wrap(err, "Could not resize window (method 1)"))
+		return errors.Wrap(err, "failed to resize the window")
 	}
-
-	// Sleep for DE to recognize resize request before continuing
-	time.Sleep(time.Millisecond * 30)
-
-	// Get a rectangle describing the dimensions of the window for proper rendering in the case the resize fails silently
-	rect, err := xwinWin.Geometry()
-	if err != nil {
-		panic(errors.Wrap(err, "Error getting window size"))
-	}
-	// Get the PID of the window
-	pid, err := ewmh.WmPidGet(x, winID)
-	if err != nil {
-		fmt.Println("Failed to get PID")
-		pid = findUndertale()
-		fmt.Println("Got PID from process list")
-	}
-
-	// Use the PID to create a os.Process instance for the ability to pause the game, etc.
-	process, err := os.FindProcess(int(pid))
-	if err != nil {
-		panic(errors.Wrap(err, "Could not find the process from X's PID"))
-	}
-	return newUndertaleWindow(rect.Width(), rect.Height(), winID, process)
+	return nil
 }
 
-// Get the ID of the active window
-func getWinID(x *xgbutil.XUtil) xproto.Window {
-	fmt.Println("Click the window to act upon")
-	waitForMouseClick()
-	time.Sleep(time.Second / 2)
-	// Get the xproto window ID from the active window (the one last clicked usually)
-	winID, err := ewmh.ActiveWindowGet(x)
+// Get window based on where user clicked
+func getWinID(serv sys.Server) (sys.Window, error) {
+	fmt.Println("Shift-click the window to act upon")
+	err := waitForSelect()
 	if err != nil {
-		panic(errors.Wrap(err, "Error getting active window"))
+		return nil, errors.Wrap(err, "could not wait for the mouse to be clicked")
 	}
-	return winID
+	time.Sleep(time.Second / 2)
+	return serv.ActiveWindow()
 }
 
 // Stalls until the left mouse button is pressed
-func waitForMouseClick() {
+func waitForSelect() error {
+	ctrl := robotgo.AddEvent("shift")
 	mleft := robotgo.AddEvent("mleft")
-	if mleft == 0 {
-		return
+	if ctrl == 0 && mleft == 0 {
+		return nil
 	}
-	panic("mleft was not 0")
-}
-
-// Indicators within a process name for an Undertale related process
-var undertaleProcessNames = []string{"runner", "under", "tale"}
-
-// Gets the PID of the Undertale process
-func findUndertale() uint {
-	for _, processName := range undertaleProcessNames {
-		pid, err := executableNameToPid(processName)
-		if err == nil {
-			return pid
-		}
-	}
-	panic("Could not find Undertale instance")
-}
-
-// Finds the PID based on the executable name of a process
-func executableNameToPid(processName string) (uint, error) {
-	processes, err := ps.Processes()
-	if err != nil {
-		panic(err)
-	}
-	for _, process := range processes {
-		if strings.Contains(strings.ToLower(process.Executable()), strings.ToLower(processName)) && process.Executable() != title {
-			return uint(process.Pid()), nil
-		}
-	}
-	return 0, errors.New("Could not find the process")
+	return errors.New("ctrl and mleft was not 0")
 }

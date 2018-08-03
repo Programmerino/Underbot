@@ -56,3 +56,15 @@
 [[constraint]]
   branch = "master"
   name = "github.com/mitchellh/go-ps"
+  
+[[constraint]]
+  branch = "master"
+  name = "github.com/DanieleDaccurso/goxdo"
+
+[[constraint]]
+  name = "github.com/galaktor/gostwriter"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/beefsack/go-astar"

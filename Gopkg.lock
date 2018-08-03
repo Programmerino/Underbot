@@ -8,8 +8,7 @@
     ".",
     "shape",
     "xinerama",
-    "xproto",
-    "xtest"
+    "xproto"
   ]
   revision = "27f122750802c950b2c869a5b63dafcf590ced95"
 
@@ -34,6 +33,22 @@
   packages = ["."]
   revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
   version = "1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/beefsack/go-astar"
+  packages = ["."]
+  revision = "f324bbb0d6f79849d76a6d94329152c6adfccee2"
+
+[[projects]]
+  name = "github.com/galaktor/gostwriter"
+  packages = [
+    ".",
+    "key",
+    "uinput"
+  ]
+  revision = "b9e5df85bd4a99f54867f964a02d0d064403e682"
+  version = "v1.0"
 
 [[projects]]
   branch = "master"
@@ -83,6 +98,7 @@
     ".",
     "ebitenutil",
     "ebitenutil/internal/assets",
+    "inpututil",
     "internal",
     "internal/affine",
     "internal/clock",
@@ -207,6 +223,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc192d4bfac83b311399c775f38bf6a77c6de2388442d3075ea00914825048c0"
+  inputs-digest = "aebe407fd879ef49d79be94c49a76b06e3a63de6acb5f2e34e8218f9e9238165"
   solver-name = "gps-cdcl"
   solver-version = 1
