@@ -266,14 +266,24 @@ func UnknownUpdate(objects []object.Object, win sys.Window, img *image.RGBA) err
 // GetWanted returns a slice of objects based on what the recognized objects wanted are
 func GetWanted(objects []object.Object, wanted []object.RecognizableObject) ([]object.RecognizedObject, error) {
 	var found []object.RecognizedObject
+
+	// Used to make sure that the types found are the same as the ones wanted
+	var wantedCompare []object.RecognizableObject
+
+	// Used to ensure that duplicate items of the same type aren't added to wantedCompare
+	var typesUsed []object.RecognizableObject
 	for _, wantObj := range wanted {
 		for _, obj := range objects {
 			if obj.RecogObj.Type == wantObj {
 				found = append(found, obj.RecogObj)
+				if !contains(typesUsed, obj.RecogObj.Type) {
+					wantedCompare = append(wantedCompare, obj.RecogObj.Type)
+					typesUsed = append(typesUsed, obj.RecogObj.Type)
+				}
 			}
 		}
 	}
-	if len(wanted) != len(found) {
+	if !equal(wanted, wantedCompare) {
 		return found, errors.New("could not get all the needed items")
 	}
 	return found, nil
@@ -292,4 +302,25 @@ func Map(recObjects []object.RecognizedObject) (recMap map[string][]object.Recog
 	return recMap
 }
 
-// Attack the target
+// equal tells whether a and b contain the same elements.
+// A nil argument is equivalent to an empty slice.
+func equal(a, b []object.RecognizableObject) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func contains(s []object.RecognizableObject, e object.RecognizableObject) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
